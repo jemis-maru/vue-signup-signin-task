@@ -1,5 +1,8 @@
 <template>
     <div>
+        <custom-dialog :show="!!isRegister" routePath="/login" btnName="Login" title="Register successfully" @close="closeDialog">
+            <p>{{ isRegister }}</p>
+        </custom-dialog>
         <container-card>
             <h2 class="textCenter">Register</h2>
             <div>
@@ -35,10 +38,12 @@
 
 <script>
 import CustomButton from './ui/CustomButton.vue';
+import CustomDialog from './ui/CustomDialog.vue';
 
 export default {
     components: {
         'custom-button': CustomButton,
+        'custom-dialog': CustomDialog,
     },
     data(){
         return{
@@ -47,30 +52,34 @@ export default {
             password: '',
             confirmPassword: '',
             anyError: false,
+            isRegister: null,
         };
     },
     methods: {
         submitForm(){
             this.anyError = false;
             if(!this.isUserNameValid || !this.isEmailValid || !this.isPasswordValid || !this.isBothPasswordMatch){
-                // console.log('validation failed');
                 this.anyError = true;
                 return;
             }
-            console.log(this.userName);
-            console.log(this.email);
-            console.log(this.password);
-            console.log(this.confirmPassword);
+            this.$store.dispatch('register', {
+                userName: this.userName,
+                email: this.email,
+                password: this.password,
+            });
             this.userName = '';
             this.email = '';
             this.password = '';
             this.confirmPassword = '';
+            this.isRegister = 'Go to login';
+        },
+        closeDialog(){
+            this.isRegister = null;
         },
     },
     computed: {
         isUserNameValid(){
             const regx = new RegExp(/^[a-zA-Z]{1,}[_ ]{0,1}[a-zA-Z]{1,}[_ ]{0,1}[a-zA-Z]{1,}$/);
-            // console.log(regx.test(this.userName));
             if(this.userName === '' || !regx.test(this.userName)){
                 return false;
             }
@@ -78,7 +87,6 @@ export default {
         },
         isEmailValid(){
             const regx = new RegExp(/^[a-zA-Z0-9]{1,}[a-zA-Z0-9.-_]{1,}@[a-zA-Z]{2,}[.]{1}[a-zA-Z]{2,}[.]{0,1}[a-zA-Z]{0,}$/);
-            // console.log(regx.test(this.email));
             if(this.email === '' || !regx.test(this.email)){
                 return false;
             }

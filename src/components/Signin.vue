@@ -1,5 +1,12 @@
 <template>
     <div>
+        <custom-dialog v-if="!loginFailed" :show="!!isLogin" routePath="/dashboard" btnName="Dashboard" title="Login successfully" @close="closeDialog">
+            <p>{{ isLogin }}</p>
+        </custom-dialog>
+        <custom-dialog v-else :show="!!isLogin" routePath="/login" btnName="Login" title="Login failed" @close="closeDialog">
+            <p>Make sure you register.</p>
+            <p>Try to login again!</p>
+        </custom-dialog>
         <container-card>
             <h2 class="textCenter">Login</h2>
             <div>
@@ -25,36 +32,43 @@
 
 <script>
 import CustomButton from './ui/CustomButton.vue';
+import CustomDialog from './ui/CustomDialog.vue';
 
 export default {
     components: {
         'custom-button': CustomButton,
+        'custom-dialog': CustomDialog,
     },
     data(){
         return{
             email: '',
             password: '',
             anyError: false,
+            isLogin: null,
         };
     },
     methods: {
         submitForm(){
             this.anyError = false;
             if(!this.isEmailValid || !this.isPasswordValid){
-                // console.log('validation failed');
                 this.anyError = true;
                 return;
             }
-            console.log(this.email);
-            console.log(this.password);
+            this.$store.dispatch('login', {
+                email: this.email,
+                password: this.password,
+            });
             this.email = '';
             this.password = '';
+            this.isLogin = 'Go to Dashboard';
+        },
+        closeDialog(){
+            this.isLogin = null;
         },
     },
     computed: {
         isEmailValid(){
             const regx = new RegExp(/^[a-zA-Z0-9]{1,}[a-zA-Z0-9.-_]{1,}@[a-zA-Z]{2,}[.]{1}[a-zA-Z]{2,}[.]{0,1}[a-zA-Z]{0,}$/);
-            // console.log(regx.test(this.email));
             if(this.email === '' || !regx.test(this.email)){
                 return false;
             }
@@ -65,6 +79,9 @@ export default {
                 return false;
             }
             return true;
+        },
+        loginFailed(){
+            return this.$store.getters['loginFailed'];
         },
     },
 }
