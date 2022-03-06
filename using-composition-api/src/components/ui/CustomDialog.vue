@@ -45,13 +45,13 @@ export default {
     },
   },
   emits: ["close"],
-  methods: {
-    tryClose() {
-      if (this.fixed) {
-        return;
-      }
-      this.$emit("close");
-    },
+  setup(_, context){
+    function tryClose() {
+      context.emit("close");
+    }
+    return{
+      tryClose,
+    };
   },
 };
 </script>
